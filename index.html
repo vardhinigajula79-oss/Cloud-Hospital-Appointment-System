@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Hospital Appointment System</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #edf5f7;
+            padding: 20px
+        }
+        
+        .container {
+            max-width: 700px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px
+        }
+        
+        h1 {
+            color: #087e8b
+        }
+        
+        input,
+        select,
+        button {
+            width: 100%;
+            padding: 11px;
+            margin: 7px 0;
+            box-sizing: border-box
+        }
+        
+        button {
+            background: #087e8b;
+            color: white;
+            border: 0;
+            border-radius: 5px;
+            cursor: pointer
+        }
+        
+        .item {
+            background: #eef8f8;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 6px
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Hospital Appointment System</h1>
+        <form id="form">
+            <input id="patient" placeholder="Patient name" required>
+            <select id="doctor"><option>General Physician</option><option>Cardiologist</option><option>Dentist</option><option>Dermatologist</option></select>
+            <input id="date" type="date" required>
+            <select id="time"><option>09:00 AM</option><option>10:00 AM</option><option>11:00 AM</option><option>02:00 PM</option><option>03:00 PM</option></select>
+            <button>Book Appointment</button>
+        </form>
+        <h2>Appointments</h2>
+        <div id="list"></div>
+    </div>
+    <script>
+        let appointments = [];
+        document.getElementById('date').min = new Date().toISOString().slice(0, 10);
+        document.getElementById('form').onsubmit = function(e) {
+            e.preventDefault();
+            let a = {
+                id: Date.now(),
+                patient: document.getElementById('patient').value.trim(),
+                doctor: document.getElementById('doctor').value,
+                date: document.getElementById('date').value,
+                time: document.getElementById('time').value
+            };
+            if (a.date < new Date().toISOString().slice(0, 10)) {
+                alert('Choose a future date');
+                return;
+            }
+            if (appointments.some(x => x.doctor === a.doctor && x.date === a.date && x.time === a.time)) {
+                alert('This doctor is already booked for this time');
+                return;
+            }
+            appointments.push(a);
+            this.reset();
+            render();
+        };
+
+        function render() {
+            let list = document.getElementById('list');
+            list.replaceChildren();
+            appointments.forEach(a => {
+                let d = document.createElement('div');
+                d.className = 'item';
+                let p = document.createElement('p');
+                p.textContent = a.patient + ' | ' + a.doctor + ' | ' + a.date + ' | ' + a.time;
+                let b = document.createElement('button');
+                b.textContent = 'Cancel';
+                b.onclick = () => {
+                    appointments = appointments.filter(x => x.id !== a.id);
+                    render();
+                };
+                d.append(p, b);
+                list.appendChild(d);
+            });
+            if (!appointments.length) list.textContent = 'No appointments yet.';
+        }
+    </script>
+</body>
+
+</html>
